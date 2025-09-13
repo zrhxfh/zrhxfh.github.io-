@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>手机 DeepSeek 聊天</title>
+<style>
+body{font-family:Arial;margin:20px;background:#111;color:#0f0}
+#log{height:60vh;overflow-y:auto;border:1px solid #0f0;padding:10px;margin-bottom:10px;white-space:pre-wrap}
+#in{width:calc(100% - 110px)}button{width:100px}
+</style>
+</head>
+<body>
+<h3>手机 DeepSeek 聊天框</h3>
+<div id="log"></div>
+<input id="in" placeholder="输入问题回车发送"/>
+<button onclick="send()">发送</button>
+
+<script>
+const baseURL = 'http://YOUR_TUNNEL_ADDRESS:PORT'; // tcp://5.tcp.cpolar.top:11405
+const log = document.getElementById('log');
+
+function print(t) {
+    log.textContent += t + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+async function send() {
+    const q = document.getElementById('in').value.trim();
+    if (!q) return;
+    print('你：' + q);
+    document.getElementById('in').value = '';
+
+    try {
+        const response = await fetch(`${baseURL}/v1/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'deepseek-r1:1.5b',
+                prompt: q,
+                stream: false
+            })
+        });
+
+        const data = await response.json();
+        print('Bot：' + data.response.trim() + '\n');
+    } catch (e) {
+        print('出错：' + e);
+    }
+}
+
+document.getElementById('in').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') send();
+});
+</script>
+</body>
+</html>
