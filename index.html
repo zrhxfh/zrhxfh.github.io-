@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>手机 DeepSeek 聊天</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+/* === 密码锁界面 === */
+#lockScreen{
+  position:fixed;inset:0;background:#111;display:flex;
+  align-items:center;justify-content:center;z-index:9999;
+}
+#lockBox{background:#222;padding:30px 20px;border-radius:8px;text-align:center;width:280px}
+#lockBox input{
+  width:100%;padding:8px;margin:10px 0;border:1px solid #0f0;background:#000;color:#0f0;border-radius:4px
+}
+#lockBox button{width:100%;padding:8px;background:#0f0;color:#000;border:none;border-radius:4px;cursor:pointer}
+#lockBox button:hover{background:#0a0}
+#lockBox .error{color:#f55;font-size:14px;margin-top:6px}
+/* === 原聊天界面 === */
+body{font-family:Arial;margin:0;background:#111;color:#0f0}
+h3{text-align:center;margin:10px 0}
+#log{height:calc(100vh - 120px);overflow-y:auto;border:1px solid #0f0;padding:10px;white-space:pre-wrap;background:#000}
+#in{width:calc(100% - 110px);padding:8px;background:#000;color:#0f0;border:1px solid #0f0;border-radius:4px}
+button{width:100px;padding:8px;background:#0f0;color:#000;border:none;border-radius:4px;cursor:pointer}
+button:hover{background:#0a0}
+#chatBox{display:none;height:100vh;padding:10px;box-sizing:border-box}
+</style>
+</head>
+<body>
+
+<!-- === 密码锁 === -->
+<div id="lockScreen">
+  <div id="lockBox">
+    <h3>输入密码</h3>
+    <input type="password" id="pwdInput" placeholder="密码" />
+    <button onclick="checkPwd()">解锁</button>
+    <div id="err" class="error"></div>
+  </div>
+</div>
+
+<!-- === 主聊天界面 === -->
+<div id="chatBox">
+  <h3>手机 DeepSeek 聊天框</h3>
+  <div id="log"></div>
+  <input id="in" placeholder="输入问题回车发送"/>
+  <button onclick="send()">发送</button>
+</div>
+
+<script>
+/* ========== 密码锁 ========== */
+const PASSWORD = '1234';          // ←←← 改这里为你的密码
+function checkPwd(){
+  const v = document.getElementById('pwdInput').value;
+  if(v === PASSWORD){
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('chatBox').style.display='block';
+    document.getElementById('in').focus();
+  }else{
+    document.getElementById('err').textContent='密码错误';
+  }
+}
+/* ========== 原聊天逻辑 ========== */
+const baseURL = 'http://5.tcp.cpolar.top:11405';   // 你的隧道
+const log=document.getElementById('log');
+function print(t){log.textContent+=t+'\n';log.scrollTop=log.scrollHeight;}
+async function send(){
+  const q=document.getElementById('in').value.trim();
+  if(!q)return;
+  print('你：'+q);document.getElementById('in').value='';
+  try{
+    const res=await fetch(baseURL+'/api/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'deepseek-r1:1.5b',prompt:q,stream:false})
+    });
+    const d=await res.json();
+    print('Bot：'+d.response.trim()+'\n');
+  }catch(e){print('出错：'+e);}
+}
+document.getElementById('in').addEventListener('keyup',e=>{if(e.key==='Enter')send();});
+</script>
+</body>
+</html>
