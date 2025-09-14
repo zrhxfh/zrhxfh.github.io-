@@ -3,28 +3,37 @@
 <head>
 <meta charset="UTF-8"/>
 <title>手机 DeepSeek 聊天</title>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <style>
-/* === 密码锁界面 === */
-#lockScreen{
-  position:fixed;inset:0;background:#111;display:flex;
-  align-items:center;justify-content:center;z-index:9999;
-}
-#lockBox{background:#222;padding:30px 20px;border-radius:8px;text-align:center;width:280px}
-#lockBox input{
-  width:100%;padding:8px;margin:10px 0;border:1px solid #0f0;background:#000;color:#0f0;border-radius:4px
-}
-#lockBox button{width:100%;padding:8px;background:#0f0;color:#000;border:none;border-radius:4px;cursor:pointer}
-#lockBox button:hover{background:#0a0}
-#lockBox .error{color:#f55;font-size:14px;margin-top:6px}
-/* === 原聊天界面 === */
-body{font-family:Arial;margin:0;background:#111;color:#0f0}
-h3{text-align:center;margin:10px 0}
-#log{height:calc(100vh - 120px);overflow-y:auto;border:1px solid #0f0;padding:10px;white-space:pre-wrap;background:#000}
-#in{width:calc(100% - 110px);padding:8px;background:#000;color:#0f0;border:1px solid #0f0;border-radius:4px}
-button{width:100px;padding:8px;background:#0f0;color:#000;border:none;border-radius:4px;cursor:pointer}
-button:hover{background:#0a0}
-#chatBox{display:none;height:100vh;padding:10px;box-sizing:border-box}
+:root{--bg:#0d1117;--panel:#161b22;--primary:#58a6ff;--sub:#8b949e;--msg:#21262d;--me:#1f4e79;--bot:#30363d;--radius:18px;--shadow:0 8px 32px rgba(0,0,0,.3);}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;}
+body{height:100vh;display:flex;flex-direction:column;background:var(--bg);color:#f0f6fc;}
+
+/* ===== 密码锁 ===== */
+#lockScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0d1117 0%,#010409 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+#lockBox{background:var(--panel);padding:40px 30px;border-radius:var(--radius);box-shadow:var(--shadow);width:300px;text-align:center;}
+#lockBox h3{margin-bottom:20px;font-size:22px;font-weight:600;letter-spacing:.5px;}
+#lockBox input{width:100%;padding:12px 16px;border:1px solid var(--sub);border-radius:12px;background:var(--msg);color:#fff;font-size:16px;transition:.3s;}
+#lockBox input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(88,166,255,.25);}
+#lockBox button{width:100%;margin-top:16px;padding:12px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:.3s;}
+#lockBox button:hover{background:#79c0ff;}
+#lockBox .error{color:#f85149;font-size:14px;margin-top:8px;height:18px;}
+
+/* ===== 聊天界面 ===== */
+#chatBox{display:none;height:100vh;display:flex;flex-direction:column;background:var(--bg);}
+header{padding:12px 20px;background:var(--panel);box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:12px;}
+header h3{font-size:18px;font-weight:600;}
+#log{flex:1;padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:78%;padding:10px 14px;border-radius:var(--radius);line-height:1.4;font-size:15px;word-break:break-word;animation:fade .3s ease;}
+.me{align-self:flex-end;background:var(--me);color:#fff;}
+.bot{align-self:flex-start;background:var(--bot);}
+@keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+#inputBar{padding:12px;background:var(--panel);display:flex;gap:10px;align-items:center;border-top:1px solid var(--sub);}
+#in{flex:1;padding:12px 16px;border:1px solid var(--sub);border-radius:20px;background:var(--msg);color:#fff;font-size:15px;transition:.3s;}
+#in:focus{outline:none;border-color:var(--primary);}
+#send{width:40px;height:40px;border:none;border-radius:50%;background:var(--primary);color:#fff;font-size:18px;cursor:pointer;transition:.3s;display:grid;place-items:center;}
+#send:hover{background:#79c0ff;transform:scale(1.05);}
+.time{font-size:11px;color:var(--sub);margin-top:4px;text-align:right;}
 </style>
 </head>
 <body>
@@ -32,42 +41,48 @@ button:hover{background:#0a0}
 <!-- === 密码锁 === -->
 <div id="lockScreen">
   <div id="lockBox">
-    <h3>输入密码</h3>
-    <input type="password" id="pwdInput" placeholder="密码" />
+    <h3>DeepSeek 解锁</h3>
+    <input type="password" id="pwdInput" placeholder="输入密码" />
     <button onclick="checkPwd()">解锁</button>
     <div id="err" class="error"></div>
   </div>
 </div>
 
-<!-- === 主聊天界面 === -->
+<!-- === 聊天界面 === -->
 <div id="chatBox">
-  <h3>手机 DeepSeek 聊天框</h3>
+  <header><h3>手机 DeepSeek 聊天</h3></header>
   <div id="log"></div>
-  <input id="in" placeholder="输入问题回车发送"/>
-  <button onclick="send()">发送</button>
+  <div id="inputBar">
+    <input id="in" placeholder="输入问题回车发送" />
+    <button id="send" onclick="send()">➤</button>
+  </div>
 </div>
 
 <script>
 /* ========== 密码锁 ========== */
-const PASSWORD = '1234';          // ←←← 改这里为你的密码
+const PASSWORD = '1234'; // ← 修改密码
 function checkPwd(){
   const v = document.getElementById('pwdInput').value;
   if(v === PASSWORD){
     document.getElementById('lockScreen').style.display='none';
-    document.getElementById('chatBox').style.display='block';
+    document.getElementById('chatBox').style.display='flex';
     document.getElementById('in').focus();
   }else{
     document.getElementById('err').textContent='密码错误';
   }
 }
-/* ========== 原聊天逻辑 ========== */
-const baseURL = 'http://5.tcp.cpolar.top:11405';   // 你的隧道
-const log=document.getElementById('log');
-function print(t){log.textContent+=t+'\n';log.scrollTop=log.scrollHeight;}
+
+/* ========== 聊天核心 ========== */
+const baseURL = 'http://5.tcp.cpolar.top:11405'; // 隧道地址
+const log = document.getElementById('log');
+function print(html,cls='bot'){
+  const div=document.createElement('div');div.className='msg ' + cls;div.innerHTML=html;log.appendChild(div);log.scrollTop=log.scrollHeight;
+}
+function time(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+
 async function send(){
-  const q=document.getElementById('in').value.trim();
-  if(!q)return;
-  print('你：'+q);document.getElementById('in').value='';
+  const q=document.getElementById('in').value.trim();if(!q)return;
+  print(`<div>${q}</div><div class="time">${time()}</div>`,'me');document.getElementById('in').value='';
   try{
     const res=await fetch(baseURL+'/api/generate',{
       method:'POST',
@@ -75,8 +90,8 @@ async function send(){
       body:JSON.stringify({model:'deepseek-r1:1.5b',prompt:q,stream:false})
     });
     const d=await res.json();
-    print('Bot：'+d.response.trim()+'\n');
-  }catch(e){print('出错：'+e);}
+    print(`<div>${d.response.trim()}</div><div class="time">${time()}</div>`,'bot');
+  }catch(e){print(`<div style="color:#f85149">出错：${e}</div>`,'bot');}
 }
 document.getElementById('in').addEventListener('keyup',e=>{if(e.key==='Enter')send();});
 </script>
