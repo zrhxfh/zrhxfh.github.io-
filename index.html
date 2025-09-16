@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"/>
-<title>手机 DeepSeek 聊天</title>
+<title>手机AI聊天</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <style>
 :root{--bg:#0d1117;--panel:#161b22;--primary:#58a6ff;--sub:#8b949e;--msg:#21262d;--me:#1f4e79;--bot:#30363d;--radius:18px;--shadow:0 8px 32px rgba(0,0,0,.3);}
@@ -23,6 +23,8 @@ body{height:100vh;display:flex;flex-direction:column;background:var(--bg);color:
 #chatBox{display:none;height:100vh;display:flex;flex-direction:column;background:var(--bg);}
 header{padding:12px 20px;background:var(--panel);box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:12px;}
 header h3{font-size:18px;font-weight:600;}
+/* 模型选择器 */
+#modelSel{background:var(--msg);color:#fff;border:1px solid var(--sub);border-radius:8px;padding:4px 8px;font-size:14px;margin-left:auto;}
 #log{flex:1;padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .msg{max-width:78%;padding:10px 14px;border-radius:var(--radius);line-height:1.4;font-size:15px;word-break:break-word;animation:fade .3s ease;}
 .me{align-self:flex-end;background:var(--me);color:#fff;}
@@ -41,7 +43,7 @@ header h3{font-size:18px;font-weight:600;}
 <!-- === 密码锁 === -->
 <div id="lockScreen">
   <div id="lockBox">
-    <h3>DeepSeek 解锁</h3>
+    <h3>AI 聊天解锁</h3>
     <input type="password" id="pwdInput" placeholder="输入密码" />
     <button onclick="checkPwd()">解锁</button>
     <div id="err" class="error"></div>
@@ -50,7 +52,14 @@ header h3{font-size:18px;font-weight:600;}
 
 <!-- === 聊天界面 === -->
 <div id="chatBox">
-  <header><h3>手机 DeepSeek 聊天</h3></header>
+  <header>
+    <h3>AI 聊天</h3>
+    <!-- 模型选择框 -->
+    <select id="modelSel">
+      <option value="deepseek-r1:1.5b">DeepSeek-r1:1.5b</option>
+      <option value="xiaoli">dolphin-mistral:7b（小璃）</option>
+    </select>
+  </header>
   <div id="log"></div>
   <div id="inputBar">
     <input id="in" placeholder="输入问题回车发送" />
@@ -82,12 +91,13 @@ function time(){const d=new Date();return d.getHours().toString().padStart(2,'0'
 
 async function send(){
   const q=document.getElementById('in').value.trim();if(!q)return;
+  const model=document.getElementById('modelSel').value; // 读取选择
   print(`<div>${q}</div><div class="time">${time()}</div>`,'me');document.getElementById('in').value='';
   try{
     const res=await fetch(baseURL+'/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'deepseek-r1:1.5b',prompt:q,stream:false})
+      body:JSON.stringify({model:model,prompt:q,stream:false})
     });
     const d=await res.json();
     print(`<div>${d.response.trim()}</div><div class="time">${time()}</div>`,'bot');
