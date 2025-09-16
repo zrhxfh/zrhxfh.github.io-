@@ -23,7 +23,6 @@ body{height:100vh;display:flex;flex-direction:column;background:var(--bg);color:
 #chatBox{display:none;height:100vh;display:flex;flex-direction:column;background:var(--bg);}
 header{padding:12px 20px;background:var(--panel);box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;gap:12px;}
 header h3{font-size:18px;font-weight:600;}
-/* 模型选择器 */
 #modelSel{background:var(--msg);color:#fff;border:1px solid var(--sub);border-radius:8px;padding:4px 8px;font-size:14px;margin-left:auto;}
 #log{flex:1;padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .msg{max-width:78%;padding:10px 14px;border-radius:var(--radius);line-height:1.4;font-size:15px;word-break:break-word;animation:fade .3s ease;}
@@ -54,7 +53,6 @@ header h3{font-size:18px;font-weight:600;}
 <div id="chatBox">
   <header>
     <h3>AI 聊天</h3>
-    <!-- 模型选择框 -->
     <select id="modelSel">
       <option value="deepseek-r1:1.5b">DeepSeek-r1:1.5b</option>
       <option value="xiaoli">dolphin-mistral:7b（小璃）</option>
@@ -82,8 +80,7 @@ function checkPwd(){
 }
 
 /* ========== 聊天核心 ========== */
-const baseURL = 'http://6.tcp.cpolar.cn:11412
-'; // 隧道地址
+const baseURL = 'http://5.tcp.cpolar.top:10847'; // 当前活隧道
 const log = document.getElementById('log');
 function print(html,cls='bot'){
   const div=document.createElement('div');div.className='msg ' + cls;div.innerHTML=html;log.appendChild(div);log.scrollTop=log.scrollHeight;
@@ -92,7 +89,7 @@ function time(){const d=new Date();return d.getHours().toString().padStart(2,'0'
 
 async function send(){
   const q=document.getElementById('in').value.trim();if(!q)return;
-  const model=document.getElementById('modelSel').value; // 读取选择
+  const model=document.getElementById('modelSel').value;
   print(`<div>${q}</div><div class="time">${time()}</div>`,'me');document.getElementById('in').value='';
   try{
     const res=await fetch(baseURL+'/api/generate',{
