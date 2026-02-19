@@ -7,7 +7,7 @@ import requests
 import pandas as pd
 from pathlib import Path
 
-CORRECT_PWD = "spider888"
+CORRECT_PWD = "123456"
 
 st.set_page_config(page_title="手机爬虫 V5", layout="centered")
 st.title("📱 手机爬虫 V5（CSV + 壁纸 + 股票）")
