@@ -1,4 +1,12 @@
 streamlit
 akshare>=1.12.0
-m3u8
-yt-dlp
+requests
+pandas
+pillow
+
+# 新增依赖（可选装，不装对应功能会提示）
+newspaper3k
+gtts
+qrcode[pil]
+pyzbar
+PyPDF2
